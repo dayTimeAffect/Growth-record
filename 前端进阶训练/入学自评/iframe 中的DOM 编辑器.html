@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DOM 编辑器</title>
+    <style>
+        #iframeBox{
+            margin: 15px auto 0;
+            width: 98vw;
+            height: 500px;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <div><input type="text" placeholder="请输入id" id="addInput"><button id="addButton">增加DIV</button></div>
+    <div><input type="text" placeholder="请输入id" id="removeInput"><button id="removeButton">删除DIV</button></div>
+    <div><input type="text" placeholder="请输入id" id="upInput"><button id="upButton">上移DIV</button></div>
+    <div><input type="text" placeholder="请输入id" id="downInput"><button id="downButton">下移DIV</button></div>
+</div>
+<div>
+    <iframe src="" frameborder="0" id="iframeBox"></iframe>
+</div>
+<script>
+    let iframeBox = document.getElementById('iframeBox').contentWindow.document
+    document.getElementById('addButton').addEventListener('click',function () {
+        let id  = document.getElementById('addInput').value
+        let node = iframeBox.createElement('div')
+        node.innerHTML = `id为${id}`
+        node.setAttribute('id',id)
+        node.style.borderBottom = '1px solid red'
+        iframeBox.getElementsByTagName('body')[0].appendChild(node)
+    })
+    document.getElementById('removeButton').addEventListener('click',function () {
+        let id  = document.getElementById('removeInput').value
+        iframeBox.getElementById(id).remove()
+    })
+    document.getElementById('upButton').addEventListener('click',function () {
+        let id  = document.getElementById('upInput').value
+        let updiv = iframeBox.getElementById(id).previousElementSibling
+        if (updiv) {
+            iframeBox.getElementById(id).parentNode.insertBefore(iframeBox.getElementById(id),updiv)
+        }
+    })
+    document.getElementById('downButton').addEventListener('click',function () {
+        let id  = document.getElementById('downInput').value
+        let downdiv = iframeBox.getElementById(id).nextElementSibling
+        if (downdiv) {
+            iframeBox.getElementById(id).parentNode.insertBefore(downdiv,iframeBox.getElementById(id))
+        }
+    })
+</script>
+</body>
+</html>

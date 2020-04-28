@@ -22,3 +22,17 @@ let binary = function (target, array,index,len) {
     }
     return - 1
 }
+let binary_new = function (target, array) {
+    let left = 0
+    let right = array.length - 1
+    while (left < right){
+        let mid = (left + right) >> 1 //Math.floor((left + right) / 2)
+        if (target > array[mid]) {
+            left = mid + 1
+        }else{
+            right = mid
+        }
+    }
+    return array[left] === target ? left : -1
+}
+console.log(binary_new(10, [1, 2, 3, 4, 5, 6, 8, 9]));

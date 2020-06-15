@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{margin: 0;padding: 0}
+        #result{
+            height: 100px;
+            color: red;
+            font-size: 36px;
+            text-align: center;
+            line-height: 50px;
+        }
+        #app{
+            position: absolute;
+            top: 100px;
+            left: 0;
+            right: 0;
+            margin: auto;
+            display: flex;
+            flex-wrap: wrap;
+            width: 300px;
+            height: 300px;
+        }
+        #Mask{
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            background-color: rgba(0,0,0,0.3);
+            top: 0;
+        }
+        #app div{
+            box-sizing: border-box;
+            width: 100px;
+            height: 100px;
+            background-color: olivedrab;
+            color: red;
+            border: 1px solid black;
+            text-align: center;
+            line-height: 100px;
+            font-size: 36px;
+            cursor: pointer;
+        }
+        #btnBox{
+            position: absolute;
+            top: 450px;
+            left: 0;
+            right: 0;
+            margin: auto;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #btnBox button{
+            height: 36px;
+            font-size: 24px;
+            width: 78px;
+        }
+        #btnBox1{
+            position: absolute;
+            z-index: 15;
+            text-align: center;
+            width: 100vw;
+            top: 550px;
+        }
+        #btnBox1 button{
+            height: 54px;
+            font-size: 36px;
+            width: 98px;
+            margin: 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<p id="result"></p>
+<div id="app"></div>
+<div id="Mask">
+    <div id="btnBox1">
+        <button id="btn1">先手</button><button id="btn2">后手</button>
+    </div>
+</div>
+<div id="btnBox"><button id="btn">重置</button>></div>
+</body>
+<script>
+    let result = document.getElementById('result') //结果展示
+    let app = document.getElementById('app') //棋盘
+    let mask = document.getElementById('Mask') //棋盘
+    let btn = document.getElementById('btn') //重置
+    let btn1 = document.getElementById('btn1') //先手
+    let btn2 = document.getElementById('btn2') //后手
+    let checkerboard = [
+        [0,0,0],
+        [0,0,0],
+        [0,0,0]
+    ] //初始棋盘
+    let openings = new Map() //棋谱
+    openings.set([
+        [0,0,0],
+        [0,0,0],
+        [0,0,0]
+    ].toString(),{
+        point:[1,1],
+        result: 0
+    })
+    let flag = 2 //先手o 后手x
+    //创建棋盘
+    const createBoard = function (element) {
+        element.innerHTML = ''
+        for (let i = 0; i < 3; i ++) {
+            for (let j = 0; j < 3; j ++) {
+                let lattice = document.createElement('div')
+                lattice.addEventListener('click',() => move(j,i))
+                if (checkerboard[i][j] === 1) {
+                    lattice.innerHTML = '❌'
+                }else if(checkerboard[i][j] === 2) {
+                    lattice.innerHTML = '⭕'
+                }else {
+                    lattice.innerHTML = ''
+                }
+                element.append(lattice)
+            }
+        }
+    }
+    //下棋子
+    const move = function(x,y){
+        if (result.innerHTML.length > 0) return false
+        if (checkerboard[y][x] > 0) return false
+        checkerboard[y][x] = flag
+        createBoard(app)
+        if (isWin(checkerboard,flag)) {
+            result.innerHTML = `你 赢了！！！`
+            return false
+        } else {
+            if (isEven(checkerboard)) result.innerHTML = `平局！！！`
+        }
+        flag = 3 - flag
+        computerMove()
+
+    }
+    //是否赢了
+    const isWin = function(checkerboard,flag){
+        //横
+        {
+            for (let i = 0; i < 3; i ++) {
+                let win = true
+                for (let j = 0; j < 3; j ++) {
+                    if (checkerboard[i][j] !== flag) {
+                        win = false
+                        break
+                    }
+                }
+                if (win) return flag
+            }
+        }
+        //纵
+        {
+            for (let i = 0; i < 3; i ++) {
+                let win = true
+                for (let j = 0; j < 3; j ++) {
+                    if (checkerboard[j][i] !== flag) {
+                        win = false
+                        break
+                    }
+                }
+                if (win) return flag
+            }
+        }
+        //右斜
+        {
+            let win = true
+            for (let j = 0; j < 3; j ++) {
+                if (checkerboard[j][j] !== flag) {
+                    win = false
+                    break
+                }
+            }
+            if (win) return flag
+        }
+        //左斜
+        {
+            let win = true
+            for (let j = 0; j < 3; j ++) {
+                if (checkerboard[j][2 - j] !== flag) {
+                    win = false
+                    break
+                }
+            }
+            if (win) return flag
+        }
+    }
+    //是否平局
+    const isEven = function (checkerboard) {
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (checkerboard[i][j] === 0) return false
+            }
+        }
+        return true
+    }
+    //是否将赢
+    const willWin = function (checkerboard,flag){
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (checkerboard[i][j] > 0) continue;
+                let tem = clone(checkerboard)
+                tem[i][j] = flag
+                if (isWin(tem,flag)) {
+                    return [i,j]
+                }
+            }
+        }
+        return null
+    }
+    //每一步最好的走法
+    const bestChoice = function (checkerboard,flag) {
+        if (openings.has(checkerboard.toString())) {
+            return openings.get(checkerboard.toString())
+        }
+        let point = willWin(checkerboard,flag)
+        if (point) {
+            return {
+                point,
+                result: 1
+            }
+        }
+        let result = -1  //假设我们最好的结果都是输
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (checkerboard[i][j] > 0) continue;
+                let tem = clone(checkerboard)
+                tem[i][j] = flag
+                let opp = bestChoice(tem,3 - flag) //对方的最好的选择
+                if (-opp.result >= result) {
+                    //当对面最好的结果都输，那么对应我们最好的结果就是赢
+                    //当对面最好的结果是平，那么对应我们最好的结果也是平
+                    //当对面最好的结果是赢，那么对应我们最好的结果就是输
+                    point = [i, j]
+                    result = -opp.result
+                }
+            }
+        }
+        return {
+            point,
+            result: point ? result : 0
+        }
+    }
+    //克隆
+    const clone = function (checkerboard){
+        return JSON.parse(JSON.stringify(checkerboard))
+    }
+    //电脑走
+    const computerMove = function (){
+        if (result.innerHTML.length > 0) return false
+        let point = bestChoice(checkerboard,flag).point
+        point && (checkerboard[point[0]][point[1]] = flag)
+        createBoard(app)
+        if (isWin(checkerboard,flag)) {
+            result.innerHTML = `电脑 赢了！！！`
+        } else {
+            if (isEven(checkerboard)) result.innerHTML = `平局！！！`
+            flag = 3 - flag
+        }
+        return false
+    }
+    createBoard(app)
+    btn.addEventListener('click',()=>{
+        checkerboard = [
+            [0,0,0],
+            [0,0,0],
+            [0,0,0]
+        ]
+        result.innerHTML = ''
+        flag = 2
+        createBoard(app)
+        mask.style.display = 'block'
+    })
+    btn1.addEventListener('click',()=>{
+        mask.style.display = 'none'
+    })
+    btn2.addEventListener('click',()=>{
+        computerMove()
+        mask.style.display = 'none'
+    })
+</script>
+</html>

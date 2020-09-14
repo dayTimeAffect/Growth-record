@@ -7,8 +7,8 @@
  */
 var generateMatrix = function(n) {
     let result = new Array(n).fill(-1)
-    result = result.map((v) => new Array(n).fill(-1))
-    result[0][0] = 1
+    result = result.map((v) => new Array(n).fill(-1)) //创建矩阵
+    result[0][0] = 1 //以1开始
     let direction = 'x' //方向
     let operation = +1 //操作
     let index = 2
@@ -45,6 +45,8 @@ var generateMatrix_best = function(n) {
     let result = new Array(n).fill(-1)
     result = result.map((v) => new Array(n).fill(-1))
     let index = 1, target = n * n, left = 0, top = 0, right = n - 1, bottom = n - 1;
+    //left：左边界，top：上边界，right：右边界，bottom：下边界
+    //模拟环绕，每旋转一圈，边界向内缩1
     while (index <= target){
         for (let i = left; i <= right; i ++) result[top][i] = index ++
         top ++

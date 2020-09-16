@@ -1,4 +1,4 @@
-const deepClone = (target, cache = new Map()) => {
+const deepClone = (target, cache = new WeakMap()) => {
     const tem = Object.prototype.toString.call(target).slice(8, -1).toLocaleLowerCase()
     switch (tem) {
         case 'null':

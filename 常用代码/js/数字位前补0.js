@@ -1,0 +1,1 @@
+const PrefixZero = (num, n) => (Array(n).join('0') + num).slice(-n)
